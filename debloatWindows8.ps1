@@ -348,6 +348,15 @@ Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\P
 #No Application Backups
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync" -Name "EnableBackupForWin8Apps" -Type DWord -Value 0
 
+#Disable Infrared
+# Set-ItemProperty -Path "" -Name "" -Type DWord -Value 1
+#HKEY_CURRENT_USER\Control Panel\Infrared\File Transfer
+
+    #Show Tray Icon - Disable
+    Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\Global" -Name "ShowTrayIcon" -Type DWord -Value 0
+
+    #Allow File Transfer - Disable
+    Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\File Transfer" -Name "AllowSend" -Type DWord -Value 0
 
 #Random registry tweaks
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
@@ -449,7 +458,44 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 #No store apps on taskbar
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "StoreAppsOnTaskbar" -Type DWord -Value 0
 
+#Windows Explorer Tweaks
+#   Set-ItemProperty -Path "" -Name "" -Type String -Value 0
+#   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "" -Type String -Value 0
+#   Advanced - HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
 
+    #Taskbar Small Icons - Enable
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type String -Value 1
+
+    #Explorer Status Bar - Disable
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowStatusBar" -Type String -Value 0
+
+    #Dont Show Favourites in Windows Explorer
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneShowFavorites" -Type String -Value 0
+
+    #Show File Extensions
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type String -Value 0
+
+    #Disable Aero Shake
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisallowShaking" -Type String -Value 1
+
+    #Disable AutoPlay
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type String -Value 1
+
+    #Disable Aero Peek
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type String -Value 0
+
+    #Disable Auto Screen Rotation
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AutoRotation" -Name "Enable" -Type String -Value 0
+
+
+
+
+
+
+#Disable Settings Sync
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\AppSync" -Name "Enabled" -Type String -Value 0
+
+#Delete Metro Applications
 $title    = 'Do you want to remove all Metro applications?'
 $question = 'Are you sure you want to proceed?'
 
@@ -462,7 +508,7 @@ if ($decision -eq 0) {
     write-Host "Removing all metro applications..."
     Get-AppxPackage -AllUsers | Remove-AppxPackage
     Get-AppxPackage | Remove-AppxPackage
-    Get-AppxProvisionedPackage �online | Remove-AppxProvisionedPackage �online
+    Get-AppxProvisionedPackage –online | Remove-AppxProvisionedPackage –online
 } else {
     write-Host "User chose not to remove metro applications"
 }
@@ -483,6 +529,8 @@ Enable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoResta
 Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-MobilePC-LocationProvider-INF" -NoRestart -WarningAction SilentlyContinue | Out-Null
 #Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-MobilePC-Client-Premium-Package-net" -NoRestart -WarningAction SilentlyContinue | Out-Null
 
+
+#Restart Windows Explorer
 write-Host "Restarting Windows Explorer..."
 Stop-Process -Force -Name "explorer"
 Start-Sleep -Milliseconds 500
