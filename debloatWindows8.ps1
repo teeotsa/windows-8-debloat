@@ -1,5 +1,8 @@
 #This script should get you around 30 processes also 500mb ram
 
+#Windows 8.1 Required
+#Atleast build 9600
+
 $ErrorActionPreference = 'SilentlyContinue'
 $wshell = New-Object -ComObject Wscript.Shell
 $Button = [System.Windows.MessageBoxButton]::YesNoCancel
@@ -9,9 +12,6 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 
-Write-Host "Script made by Teeotsa"
-Start-Sleep -Seconds 2
-cls
 Write-Host "Starting script..."
 
 #   Disable services!
@@ -25,313 +25,123 @@ Write-Host "Starting script..."
 
 #Killing some processes before starting
 write-Host "Killing some processes before starting debloating..."
-Stop-Process -Force -Name "SystemSettings"
-Stop-Process -Force -Name "SystemSettingsAdminFlows"
-Stop-Process -Force -Name "TiWorker"
-Stop-Process -Force -Name "TrustedInstaller"
-Stop-Process -Force -Name "WmiPrvSE"
-Stop-Process -Force -Name "mobsync"
+
+$Processes = @(
+"SystemSettings"
+"SystemSettingsAdminFlows"
+"TiWorker"
+"TrustedInstaller"
+"WmiPrvSE"
+"mobsync"
+"PresentationFontCache"
+"SMSvcHost"
+)
+
+foreach ($Pro in $Processes) {
+    Stop-Process -Name $Pro -Force -PassThru -ErrorAction SilentlyContinue
+}
+
+$Services = @(
+"wuauserv"
+"WSearch"
+"LanmanWorkstation"
+"MpsSvc"
+"Fax"
+"TabletInputService"
+"SysMain"
+"LanmanServer"
+"Spooler"
+"iphlpsvc"
+"HomeGroupProvider"
+"HomeGroupListener"
+"TrkWks"
+"WwanSvc"
+"WlanSvc"
+"dot3svc"
+"W32Time"
+"WSService"
+"WerSvc"
+#"WinDefend" | You need to use NSudo to disable Windows Defender
+#"WdNisSvc" | Same here, NSudo is needed to disable this service
+"WebClient"
+"VSS"
+"vds"
+"TapiSrv"
+"StorSvc"
+"svsvc"
+"SCPolicySvc"
+"ScDeviceEnum"
+"SCardSvr"
+"SensrSvc"
+"wscsvc"
+"RemoteRegistry"
+"TermService"
+"UmRdpService"
+"SessionEnv"
+"RasMan"
+"RasAuto"
+"PrintNotify"
+"CscService"
+"defragsvc"
+"Netlogon"
+"smphost"
+"swprv"
+"MsKeyboardFilter"
+"MSiSCSI"
+"wlidsvc"
+"fhsvc"
+"WPCSvc"
+"DPS"
+"WdiServiceHost"
+"WdiSystemHost"
+"DeviceAssociationService"
+"bthserv"
+"BthHFSrv"
+"BDESVC"
+"W3SVC"
+"WAS"
+"FontCache3.0.0.0"
+"WMPNetworkSvc"
+"lfsvc"
+#"Wecsvc"
+"w3logsvc"
+"seclogon"
+"QWAVE"
+"wercplsupport"
+"MSMQ"
+"IEEtwCollectorService"
+"hkmsvc"
+
+#TCP Services
+"NetTcpPortSharing"
+"NetTcpActivator"
+"NetPipeActivator"
+"NetMsmqActivator"
 
 
+)
 
-#Disable Windows Update Service
-#wuauserv
-Set-Service -StartupType Disabled "wuauserv"
-Stop-Service -Force -Name "wuauserv"
-Write-Host "Windows Update service has been disabled and stopped"
+#Stop-Service -InputObject Name -Confirm -Force -PassThru -ErrorAction SilentlyContinue
 
-#Disable Windows Search Service
-#WSearch
-Set-Service -StartupType Disabled "WSearch"
-Stop-Service -Force -Name "WSearch"
-Write-Host "Windows Search service has been disabled and stopped"
-
-#Disable Workstation service
-#LanmanWorkstation
-Set-Service -StartupType Disabled "LanmanWorkstation"
-Stop-Service -Force -Name "LanmanWorkstation"
-Write-Host "Workstation service has been disabled and stopped"
-
-#Disable Windows Firewall service
-#MpsSvc
-Set-Service -StartupType Disabled "MpsSvc"
-Stop-Service -Force -Name "MpsSvc"
-Write-Host "Windows Firewall service has been disabled and stopped"
-
-#Disable Fax service
-#Fax
-Set-Service -StartupType Disabled "Fax"
-Stop-Service -Force -Name "Fax"
-Write-Host "Fax service has been disabled and stopped"
-
-#Disable Touch Keyboard service
-#TabletInputService
-Set-Service -StartupType Disabled "TabletInputService"
-Stop-Service -Force -Name "TabletInputService"
-Write-Host "Touch Keyboard service has been disabled and stopped"
-  
-#Disable superfetch service
-#SysMain
-Set-Service -StartupType Disabled "SysMain"
-Stop-Service -Force -Name "SysMain"
-Write-Host "superfetch has been disabled and stopped"
-
-#Disable server service
-#LanmanServer
-Set-Service -StartupType Disabled "LanmanServer"
-Stop-Service -Force -Name "LanmanServer"
-Write-Host "Server service has been disabled and stopped"
-
-#Disable Print Spooler service
-#Spooler
-Set-Service -StartupType Disabled "Spooler"
-Stop-Service -Force -Name "Spooler"
-Write-Host "Print Spooler service has been disabled and stopped"
-
-#Disable IP Helper service
-#iphlpsvc
-Set-Service -StartupType Disabled "iphlpsvc"
-Stop-Service -Force -Name "iphlpsvc"
-Write-Host "IP Helper service has been disabled and stopped"
-
-#Disable Homegroup services
- #HomeGroupProvider
- #HomeGroupListener
-Set-Service -StartupType Disabled "HomeGroupProvider"
-Set-Service -StartupType Disabled "HomeGroupListener"
-Stop-Service -Force -Name "HomeGroupProvider"
-Stop-Service -Force -Name "HomeGroupListener"
-Write-Host "Homegroup services has been disabled and stopped"
-
-#Disable Distributed Link Tracking Client
-#TrkWks
-Set-Service -StartupType Disabled "TrkWks"
-Stop-Service -Force -Name "TrkWks"
-Write-Host "Distributed Link Tracking Client service has been disabled and stopped"
-
-#Disable WWAN AutoConfig
-#WwanSvc
-Set-Service -StartupType Disabled "WwanSvc"
-Stop-Service -Force -Name "WwanSvc"
-Write-Host "WWAN AutoConfig has been disabled! If you want to use WiFi, please re-enable this service"
-
-#Disable WLAN AutoConfig
-#WlanSvc
-Set-Service -StartupType Disabled "WlanSvc"
-Stop-Service -Force -Name "WlanSvc"
-Write-Host "WLAN AutoConfig has been disabled! If you want to use WiFi, please re-enable this service"
-
-#Disable Wired AutoConfig
-#dot3svc
-Set-Service -StartupType Disabled "dot3svc"
-Stop-Service -Force -Name "dot3svc"
-Write-Host "Wired AutoConfig has been disabled"
-
-#Disable Windows Time 
-#W32Time
-Set-Service -StartupType Disabled "W32Time"
-Stop-Service -Force -Name "W32Time"
-Write-Host "Windows Time has been disabled" 
-
-#Disable Windows Store Service
-#WSService
-Set-Service -StartupType Disabled "WSService"
-Stop-Service -Force -Name "WSService"
-Write-Host "Windows Store Service has been disabled"
-
-#Disable Windows Error Reporting Service
-#WerSvc
-Set-Service -StartupType Disabled "WerSvc"
-Stop-Service -Force -Name "WerSvc"
-Write-Host "Windows Error Reporting Service has been disabled"
-
-#Disable Windows Defender Service
-#WinDefend
-Set-Service -StartupType Disabled "WinDefend"
-Stop-Service -Force -Name "WinDefend"
-Write-Host "Windows Defender Service has been disabled"
-
-#Disable Windows Defender Network Inspection Service
-#WdNisSvc
-Set-Service -StartupType Disabled "WdNisSvc"
-Stop-Service -Force -Name "WdNisSvc"
-Write-Host "Windows Defender Network Inspection Service has been disabled"
- 
-#Disable Web Client service
-#WebClient
-Set-Service -StartupType Disabled "WebClient"
-Stop-Service -Force -Name "WebClient"
-Write-Host "WebClient Service has been disabled"
-
-#Disable Volume Shadow Copy Service
-#VSS
-Stop-Process -Force -Name "VSSVC"
-Start-Sleep -Milliseconds 200
-Set-Service -StartupType Disabled "VSS"
-Stop-Service -Force -Name "VSS"
-Write-Host "Volume Shadow Copy has been disabled"
-
-#Disable Virtual Disk service
-#vds
-Set-Service -StartupType Disabled "vds"
-Stop-Service -Force -Name "vds"
-Write-Host "Virtual Disk service has been disabled"
-
-#Disable Telephony Service
-#TapiSrv
-Set-Service -StartupType Disabled "TapiSrv"
-Stop-Service -Force -Name "TapiSrv"
-Write-Host "Telephony Service has been disabled"
-
-#Disable Storage Service
-#StorSvc
-Set-Service -StartupType Disabled "StorSvc"
-Stop-Service -Force -Name "StorSvc"
-Write-Host "Storage Service has been disabled"
-
-#Disable Spot Veifier Service
-#svsvc
-Set-Service -StartupType Disabled "svsvc"
-Stop-Service -Force -Name "svsvc"
-Write-Host "Spot Veifier Service has been disabled"
-
-#Disable Smart Card Services
-#SCPolicySvc
-#ScDeviceEnum
-#SCardSvr
-Set-Service -StartupType Disabled "SCPolicySvc"
-Set-Service -StartupType Disabled "ScDeviceEnum"
-Set-Service -StartupType Disabled "SCardSvr"
-Stop-Service -Force -Name "SCPolicySvc"
-Stop-Service -Force -Name "ScDeviceEnum"
-Stop-Service -Force -Name "SCardSvr"
-Write-Host "Smart Card Services has been disabled"
-
-#Disable Sensor Service
-#SensrSvc
-Set-Service -StartupType Disabled "SensrSvc"
-Stop-Service -Force -Name "SensrSvc"
-Write-Host "Sensor Service has been disabled! If you use laptop, please re-enable this service!"
-
-#Disable Security Center Service
-#wscsvc
-Set-Service -StartupType Disabled "wscsvc"
-Stop-Service -Force -Name "wscsvc"
-Write-Host "Security Center Service has been disabled"
-
-#Disable Remote Registry  Service
-#RemoteRegistry
-Set-Service -StartupType Disabled "RemoteRegistry"
-Stop-Service -Force -Name "RemoteRegistry"
-Write-Host "Remote Registry Service has been disabled"
-
-#Disable Remote Access Service
-#TermService
-#UmRdpService
-#SessionEnv
-#RasMan
-#RasAuto
-Set-Service -StartupType Disabled "TermService"
-Stop-Service -Force -Name "TermService"
-Set-Service -StartupType Disabled "UmRdpService"
-Stop-Service -Force -Name "UmRdpService"
-Set-Service -StartupType Disabled "SessionEnv"
-Stop-Service -Force -Name "SessionEnv"
-Set-Service -StartupType Disabled "RasMan"
-Stop-Service -Force -Name "RasMan"
-Set-Service -StartupType Disabled "RasAuto"
-Stop-Service -Force -Name "RasAuto"
-Write-Host "Remote Desktop has been disabled"
-
-#Disable Printing Stuff
-#PrintNotify
-Set-Service -StartupType Disabled "PrintNotify"
-Stop-Service -Force -Name "PrintNotify"
-Write-Host "Printer Extensions and Notifications Service has been disabled"
-
-#Disable Offline Files Service
-#CscService
-Set-Service -StartupType Disabled "CscService"
-Stop-Service -Force -Name "CscService"
-Write-Host "Offline Files Service has been disabled"
-
-#Disable Optimize Drives Service
-#defragsvc
-Set-Service -StartupType Disabled "defragsvc"
-Stop-Service -Force -Name "defragsvc"
-Write-Host "Optimize Drives Service has been disabled"
-
-#Disable Netlogon Server
-#Netlogon
-Set-Service -StartupType Disabled "Netlogon"
-Stop-Service -Force -Name "Netlogon"
-Write-Host "Netlogon Service has been disabled"
-
-#Disable Microsoft Services
-#smphost
-#swprv
-#MsKeyboardFilter
-#MSiSCSI
-#wlidsvc
-Set-Service -StartupType Disabled "smphost"
-Set-Service -StartupType Disabled "swprv"
-Set-Service -StartupType Disabled "MsKeyboardFilter"
-Set-Service -StartupType Disabled "MSiSCSI"
-Set-Service -StartupType Disabled "wlidsvc"
-Stop-Service -Force -Name "smphost"
-Stop-Service -Force -Name "swprv"
-Stop-Service -Force -Name "MsKeyboardFilter"
-Stop-Service -Force -Name "MSiSCSI"
-Stop-Service -Force -Name "wlidsvc"
-Write-Host "Microsoft Services has been disabled"
-
-#Disable File History Service
-#fhsvc
-Set-Service -StartupType Disabled "fhsvc"
-Stop-Service -Force -Name "fhsvc"
-Write-Host "File History Service has been disabled"
-
-#Disable Family Safety Service
-#WPCSvc
-Set-Service -StartupType Disabled "WPCSvc"
-Stop-Service -Force -Name "WPCSvc"
-Write-Host "Family Safety Service has been disabled"
-
-#Disable Diagnostic Services
-#DPS
-#WdiServiceHost
-#WdiSystemHost
-Set-Service -StartupType Disabled "DPS"
-Set-Service -StartupType Disabled "WdiServiceHost"
-Set-Service -StartupType Disabled "WdiSystemHost"
-Stop-Service -Force -Name "DPS"
-Stop-Service -Force -Name "WdiServiceHost"
-Stop-Service -Force -Name "WdiSystemHost"
-Write-Host "Diagnostic Services has been disabled"
-
-#Disable Pairing between devices
-#DeviceAssociationService
-Set-Service -StartupType Disabled "DeviceAssociationService"
-Stop-Service -Force -Name "DeviceAssociationService"
-Write-Host "DeviceAssociationService has been disabled"
-
-#Disable Bluetooth
-#bthserv
-#BthHFSrv
-Set-Service -StartupType Disabled "bthserv"
-Set-Service -StartupType Disabled "BthHFSrv"
-Stop-Service -Force -Name "bthserv"
-Stop-Service -Force -Name "BthHFSrv"
-Write-Host "Bluetooth Services has been disabled"
-
-#Disable BitLocker
-#BDESVC
-Set-Service -StartupType Disabled "BDESVC"
-Stop-Service -Force -Name "BDESVC"
-Write-Host "BitLocker has been disabled"
+foreach ($s in $Services) {
+Get-Service -Name $s -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
+write-Host "$s has been disabled" 
+$running = Get-Service -Name $service -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}
+    if ($running) { 
+        Stop-Service -InputObject $service -Confirm -Force -PassThru -ErrorAction SilentlyContinue
+        #write-Host "$s has been stopped"
+    }
+}
 
 #Registry Tweaks
 Write-Host "Now, registry tweaks!"
+
+#Disable File Histroy
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -ItemType DWord -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -Name "Disabled" -Type DWord -Value 1
+
+#Disable Activity History
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
 
 #Disable Consumer Features
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
@@ -358,13 +168,17 @@ Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\S
     #Allow File Transfer - Disable
     Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\File Transfer" -Name "AllowSend" -Type DWord -Value 0
 
-#Random registry tweaks
+#Random registry tweak
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
+
+#Disable Smart Screen
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableSmartScreen" -Type DWord -Value 0
+
+#No Activity History
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
 
-#Disable Anti Spyware
+#Disable Anti Spyware (No Windows Defender)
 Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
 
 ###Disable Tasks###
@@ -489,9 +303,6 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 
 
 
-
-
-
 #Disable Settings Sync
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\AppSync" -Name "Enabled" -Type String -Value 0
 
@@ -529,6 +340,14 @@ Enable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoResta
 Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-MobilePC-LocationProvider-INF" -NoRestart -WarningAction SilentlyContinue | Out-Null
 #Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-MobilePC-Client-Premium-Package-net" -NoRestart -WarningAction SilentlyContinue | Out-Null
 
+#Disable AppX service and tasks
+#AppXSvc
+#
+Get-Service -Name "AppXSvc" -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
+Stop-Service -InputObject "AppXSvc" -Confirm -Force -PassThru -ErrorAction SilentlyContinue
+Disable-ScheduledTask -TaskName "\Microsoft\Windows\AppxDeploymentClient\Pre-staged app cleanup" | Out-Null
+
+
 
 #Restart Windows Explorer
 write-Host "Restarting Windows Explorer..."
@@ -551,8 +370,10 @@ $choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentL
 $decision = $Host.UI.PromptForChoice($title, $question, $choices, 1)
 if ($decision -eq 0) {
     shutdown -r
+    exit
 } else {
     Write-Host "Script will close in 5 seconds..."
     Start-Sleep -Seconds 5
     exit
 }
+
