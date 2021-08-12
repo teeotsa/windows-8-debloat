@@ -136,50 +136,94 @@ $running = Get-Service -Name $service -ErrorAction SilentlyContinue | Where-Obje
 #Registry Tweaks
 Write-Host "Now, registry tweaks!"
 
+#Disable Active Corners
+$ActiveCorner = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUI"
+if (!(Test-Path $ActiveCorner)){
+    New-Item $ActiveCorner
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path $ActiveCorner -Name "DisableCharmsHint" -Type DWord -Value 1
+    Set-ItemProperty -Path $ActiveCorner -Name "DisableTLCorner" -Type DWord -Value 1
+} else {
+    Set-ItemProperty -Path $ActiveCorner -Name "DisableCharmsHint" -Type DWord -Value 1
+    Set-ItemProperty -Path $ActiveCorner -Name "DisableTLCorner" -Type DWord -Value 1
+}
+
+
 #Disable File Histroy
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -ItemType DWord -Force
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -Name "Disabled" -Type DWord -Value 1
-
-#Disable Activity History
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
+write-Host "File History should be disabled now"
 
 #Disable Consumer Features
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
+$ConsumerPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+if (!(Test-Path $ConsumerPath)){
+    write-Host "Consumer Features key directory not found... Script will make new key for that"
+    New-Item "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
+} else {
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
+}
 
 #No Use Open With
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoUseStoreOpenWith" -Type DWord -Value 1
+$NoUseWithPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"
+if (!(Test-Path $NoUseWithPath)){
+    write-Host "No Use With key directory not found... Script will make new key for that"
+    New-Item $NoUseWithPath
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoUseStoreOpenWith" -Type DWord -Value 1
+} else {
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoUseStoreOpenWith" -Type DWord -Value 1
+}
 
 #No New App Alert
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoNewAppAlert" -Type DWord -Value 1
+$NoNewAppAlertPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"
+if (!(Test-Path $NoNewAppAlertPath)){
+    write-Host "No New App Alert key directory not found... Script will make new key for that"
+    New-Item $NoNewAppAlertPath
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoNewAppAlert" -Type DWord -Value 1
+} else {
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoNewAppAlert" -Type DWord -Value 1
+}
+
 
 #No LockScreen
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1
+$NoLockScreenPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"
+if (!(Test-Path $NoLockScreenPath)){
+    write-Host "No Lock Screen key directory not found... Script will make new key for that"
+    New-Item $NoLockScreenPath
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path $NoLockScreenPath -Name "NoLockScreen" -Type DWord -Value 1
+} else {
+    Set-ItemProperty -Path $NoLockScreenPath -Name "NoLockScreen" -Type DWord -Value 1
+}
 
 #No Application Backups
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync" -Name "EnableBackupForWin8Apps" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync" -Name "EnableBackupForWin8Apps" -Type DWord -Value 0
 
-#Disable Infrared
-# Set-ItemProperty -Path "" -Name "" -Type DWord -Value 1
-#HKEY_CURRENT_USER\Control Panel\Infrared\File Transfer
-
-    #Show Tray Icon - Disable
-    Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\Global" -Name "ShowTrayIcon" -Type DWord -Value 0
-
-    #Allow File Transfer - Disable
-    Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\File Transfer" -Name "AllowSend" -Type DWord -Value 0
-
-#Random registry tweak
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
+#Disable Infrared Stuff
+Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\Global" -Name "ShowTrayIcon" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\File Transfer" -Name "AllowSend" -Type DWord -Value 0
 
 #Disable Smart Screen
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableSmartScreen" -Type DWord -Value 0
+$DisableSmartScreen = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+if (!(Test-Path $DisableSmartScreen)){
+    write-Host "Smart Screen key directory not found... Script will make new key for that"
+    New-Item $DisableSmartScreen
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path $DisableSmartScreen -Name "EnableSmartScreen" -Type DWord -Value 0
+} else {
+    Set-ItemProperty -Path $DisableSmartScreen -Name "EnableSmartScreen" -Type DWord -Value 0
+}
 
 #No Activity History
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
 
 #Disable Anti Spyware (No Windows Defender)
-Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
 
 ###Disable Tasks###
 # Disable-ScheduledTask -TaskName "" | Out-Null
@@ -278,58 +322,49 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 #   Advanced - HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
 
     #Taskbar Small Icons - Enable
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type String -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type DWord -Value 1
 
     #Explorer Status Bar - Disable
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowStatusBar" -Type String -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowStatusBar" -Type DWord -Value 0
 
     #Dont Show Favourites in Windows Explorer
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneShowFavorites" -Type String -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneShowFavorites" -Type DWord -Value 0
 
     #Show File Extensions
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type String -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
 
     #Disable Aero Shake
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisallowShaking" -Type String -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisallowShaking" -Type DWord -Value 1
 
     #Disable AutoPlay
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type String -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1
 
     #Disable Aero Peek
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type String -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0
 
     #Disable Auto Screen Rotation
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AutoRotation" -Name "Enable" -Type String -Value 0
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AutoRotation" -Name "Enable" -Type DWord -Value 0
 
 
 
 #Disable Settings Sync
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\AppSync" -Name "Enabled" -Type String -Value 0
-
-#Delete Metro Applications
-$title    = 'Do you want to remove all Metro applications?'
-$question = 'Are you sure you want to proceed?'
-
-$choices = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
-$choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList '&Yes'))
-$choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList '&No'))
-
-$decision = $Host.UI.PromptForChoice($title, $question, $choices, 1)
-if ($decision -eq 0) {
-    write-Host "Removing all metro applications..."
-    Get-AppxPackage -AllUsers | Remove-AppxPackage
-    Get-AppxPackage | Remove-AppxPackage
-    Get-AppxProvisionedPackage –online | Remove-AppxProvisionedPackage –online
+$DisableSettingsSyncing = "HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\AppSync"
+if (!(Test-Path $DisableSettingsSyncing)){
+    write-Host "Settings Sync key directory not found... Script will make new key for that"
+    New-Item $DisableSettingsSyncing
+    Start-Sleep -Milliseconds 200
+    Set-ItemProperty -Path $DisableSettingsSyncing -Name "Enabled" -Type DWord -Value 0
 } else {
-    write-Host "User chose not to remove metro applications"
+    Set-ItemProperty -Path $DisableSettingsSyncing -Name "Enabled" -Type DWord -Value 0
 }
 
-#Remove all Metro Apps
-    #write-Host "Removing all metro applications..."
-    #Get-AppxPackage -AllUsers | Remove-AppxPackage
+#Delete Metro Applications
+write-Host "Trying to remove all metro applications..."
+Get-AppxPackage -AllUsers | Remove-AppxPackage
+Get-AppxPackage | Remove-AppxPackage
+Get-AppxProvisionedPackage –online | Remove-AppxProvisionedPackage –online
 
 #Enable and Disable some optional features
-
 Enable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart -WarningAction SilentlyContinue | Out-Null
 #Disable-WindowsOptionalFeature -Online -FeatureName "Xps-Foundation-Xps-Viewer" -NoRestart -WarningAction SilentlyContinue | Out-Null
 #Disable-WindowsOptionalFeature -Online -FeatureName "WorkFolders-Client" -NoRestart -WarningAction SilentlyContinue | Out-Null
@@ -341,24 +376,43 @@ Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-MobilePC-
 #Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-MobilePC-Client-Premium-Package-net" -NoRestart -WarningAction SilentlyContinue | Out-Null
 
 #Disable AppX service and tasks
-#AppXSvc
-#
 Get-Service -Name "AppXSvc" -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
-Stop-Service -InputObject "AppXSvc" -Confirm -Force -PassThru -ErrorAction SilentlyContinue
+Stop-Service -InputObject "AppXSvc" -Force -PassThru -ErrorAction SilentlyContinue
 Disable-ScheduledTask -TaskName "\Microsoft\Windows\AppxDeploymentClient\Pre-staged app cleanup" | Out-Null
-
 
 
 #Restart Windows Explorer
 write-Host "Restarting Windows Explorer..."
-Stop-Process -Force -Name "explorer"
+Stop-Process -Name "explorer" -Force -PassThru
 Start-Sleep -Milliseconds 500
 
-#Just opens explorer :)
-#Start-Process "C:\Windows\explorer.exe"
+<#
 
-#   Write-Host "Script will close in 5 seconds..."
-#   Start-Sleep -Seconds 5
+Clean folders, You can uncomment this section
+
+$CacheDeleteFile = @"
+@echo off
+title Cleaning...
+color 0a
+cd %windir%\SoftwareDistribution
+del /f/q/s *
+cd %windir%\Prefetch
+del /f/q/s *
+cd %temp%
+del /f/q/s *
+cd %windir%\Temp
+del /f/q/s *
+"@
+$CurrentUser = $env:UserName
+$Path = "C:\Users\$CurrentUser\Appdata\Local\Temp\CacheCleanup.bat"
+New-Item -Path $Path -Value $CacheDeleteFile -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 1
+Start-Process -FilePath $Path -PassThru -Wait
+
+#>
+
+#PowerShell output will be cleared
+Clear-Host
 
 $title    = 'Do you want to restart your computer?'
 $question = ' '
@@ -372,8 +426,6 @@ if ($decision -eq 0) {
     shutdown -r
     exit
 } else {
-    Write-Host "Script will close in 5 seconds..."
-    Start-Sleep -Seconds 5
     exit
 }
 
