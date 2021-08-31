@@ -128,6 +128,7 @@ foreach ($Services in $Services) {
 Write-Host "Now, registry tweaks!"
 
 #Disable Active Corners
+#This might not work with Windows 8.1 
 $ActiveCorner = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUI"
 if (!(Test-Path $ActiveCorner)){
     New-Item $ActiveCorner
@@ -326,42 +327,91 @@ if (!(Test-Path $DisableSettingsSyncing)){
 write-Host "Settings sync has been disabled"
 
 #Disable Scheduled Tasks
-write-Host "Now, trying to disable alot of scheduled tasks..."
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Work Folders\Work Folders Logon Synchronization" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Work Folders\Work Folders Maintenance Work" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WS\Badge Update" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WS\License Validation" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WS\Sync Licenses" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WS\WSRefreshBannedAppsListTask" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WS\WSTask" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\AUFirmwareInstall" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\AUScheduledInstall" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\AUSessionConnect" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\Scheduled Start" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\Scheduled Start With Network" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Verification" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\SystemRestore\SR" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\SkyDrive\Idle Sync Maintenance Task" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\SkyDrive\Routine Maintenance Task" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Shell\IndexerAutomaticMaintenance" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\SettingSync\BackgroundUploadTask" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\SettingSync\BackupTask" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\SettingSync\NetworkStateChangeTask" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Offline Files\Background Synchronization" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Offline Files\Logon Synchronization" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\File Classification Infrastructure\Property Definition Sync" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Registry\RegIdleBackup" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Location\Notifications" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\FileHistory\File History (maintenance mode)" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Autochk\Proxy" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\DiskCleanup\SilentCleanup" | Out-Null -ErrorAction SilentlyContinue
-Disable-ScheduledTask -TaskName "\Microsoft\Windows\Defrag\ScheduledDefrag" | Out-Null -ErrorAction SilentlyContinue
+$ScheduledTasks = @(
+"\Microsoft\Windows\Work Folders\Work Folders Logon Synchronization"
+"\Microsoft\Windows\Work Folders\Work Folders Maintenance Work"
+"\Microsoft\Windows\WS\Badge Update"
+"\Microsoft\Windows\WS\License Validation"
+"\Microsoft\Windows\WS\Sync Licenses"
+"\Microsoft\Windows\WS\WSRefreshBannedAppsListTask"
+"\Microsoft\Windows\WS\WSTask"
+"\Microsoft\Windows\WindowsUpdate\AUFirmwareInstall"
+"\Microsoft\Windows\WindowsUpdate\AUScheduledInstall"
+"\Microsoft\Windows\WindowsUpdate\AUSessionConnect"
+"\Microsoft\Windows\WindowsUpdate\Scheduled Start"
+"\Microsoft\Windows\WindowsUpdate\Scheduled Start With Network"
+"\Microsoft\Windows\Windows Error Reporting\QueueReporting"
+"\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance"
+"\Microsoft\Windows\Windows Defender\Windows Defender Cleanup"
+"\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan"
+"\Microsoft\Windows\Windows Defender\Windows Defender Verification"
+"\Microsoft\Windows\SystemRestore\SR"
+"\Microsoft\Windows\SkyDrive\Idle Sync Maintenance Task"
+"\Microsoft\Windows\SkyDrive\Routine Maintenance Task"
+"\Microsoft\Windows\Shell\IndexerAutomaticMaintenance"
+"\Microsoft\Windows\SettingSync\BackgroundUploadTask"
+"\Microsoft\Windows\SettingSync\BackupTask"
+"\Microsoft\Windows\SettingSync\NetworkStateChangeTask"
+"\Microsoft\Windows\Offline Files\Background Synchronization"
+"\Microsoft\Windows\Offline Files\Logon Synchronization"
+"\Microsoft\Windows\File Classification Infrastructure\Property Definition Sync"
+"\Microsoft\Windows\Registry\RegIdleBackup"
+"\Microsoft\Windows\Location\Notifications"
+"\Microsoft\Windows\FileHistory\File History (maintenance mode)"
+"\Microsoft\Windows\FileHistory\File History"
+"\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector"
+"\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver"
+"\Microsoft\Windows\Autochk\Proxy"
+"\Microsoft\Windows\DiskCleanup\SilentCleanup"
+"\Microsoft\Windows\Defrag\ScheduledDefrag"
+"\Microsoft\Windows\Application Experience\AitAgent"
+"\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser"
+"\Microsoft\Windows\Application Experience\ProgramDataUpdater"
+"\Microsoft\Windows\Application Experience\StartupAppTask"
+"\Microsoft\Windows\ApplicationData\CleanupTemporaryState"
+"\Microsoft\Windows\Bluetooth\UninstallDeviceTask"
+"\Microsoft\Windows\Chkdsk\ProactiveScan"
+"\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip"
+"\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask"
+"\Microsoft\Windows\Customer Experience Improvement Program\Consolidator"
+"\Microsoft\Windows\Customer Experience Improvement Program\BthSQM"
+"\Microsoft\Windows\Data Integrity Scan\Data Integrity Scan for Crash Recovery"
+"\Microsoft\Windows\Data Integrity Scan\Data Integrity Scan"
+"\Microsoft\Windows\Defrag\ScheduledDefrag"
+"\Microsoft\Windows\Diagnosis\Scheduled"
+"\Microsoft\Windows\Maintenance\WinSAT"
+"\Microsoft\Windows\MemoryDiagnostic\ProcessMemoryDiagnosticEvents"
+"\Microsoft\Windows\MemoryDiagnostic\RunFullMemoryDiagnostic"
+"\Microsoft\Windows\Mobile Broadband Accounts\MNO Metadata Parser"
+"\Microsoft\Windows\MUI\LPRemove"
+"\Microsoft\Windows\NetTrace\GatherNetworkInfo"
+"\Microsoft\Windows\PerfTrack\BackgroundConfigSurveyor"
+"\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem"
+"\Microsoft\Windows\RAC\RacTask"
+"\Microsoft\Windows\Ras\MobilityManager"
+"\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE"
+"\Microsoft\Windows\Servicing\StartComponentCleanup"
+"\Microsoft\Windows\SoftwareProtectionPlatform\SvcRestartTask"
+"\Microsoft\Windows\SoftwareProtectionPlatform\SvcRestartTaskLogon"
+#"\Microsoft\Windows\SoftwareProtectionPlatform\SvcRestartTaskNetwork"
+"\Microsoft\Windows\SpacePort\SpaceAgentTask"
+"\Microsoft\Windows\Sysmain\HybridDriveCachePrepopulate"
+"\Microsoft\Windows\Sysmain\HybridDriveCacheRebalance"
+"\Microsoft\Windows\Sysmain\WsSwapAssessmentTask"
+"\Microsoft\Windows\TPM\Tpm-Maintenance"
+"\Microsoft\Windows\WDI\ResolutionHost"
+"\Microsoft\Windows\Windows Media Sharing\UpdateLibrary"
+"\Microsoft\Windows\WS\License Validation"
+"\Microsoft\Windows\WS\WSTask"
+"\Microsoft\Windows\WS\WSRefreshBannedAppsListTask"
+"\Microsoft\Windows\WS\Sync Licenses"
+"\Microsoft\Windows\WS\Badge Update"
+)
+
+foreach ($ScheduledTasks in $ScheduledTasks){
+    Disable-ScheduledTask -TaskName $ScheduledTasks | Out-Null -ErrorAction SilentlyContinue
+}
+write-Host "'Scheduled Tasks' should be disabled now!"
 
 #Tweak visual effects
 write-Host "Tweaking visual effects..."
@@ -454,12 +504,35 @@ foreach ($OptionalFeatures in $OptionalFeatures){
     Enable-WindowsOptionalFeature -Online -FeatureName $OptionalFeatures -NoRestart -WarningAction SilentlyContinue | Out-Null
 }
 
-write-Host "Trying to remove all metro applications..."
-Get-AppxPackage -AllUsers | Remove-AppxPackage
-Get-AppxPackage | Remove-AppxPackage
-Get-AppxProvisionedPackage –Online | Remove-AppxProvisionedPackage –Online
+$StartService = "AppXSvc"
+#Set Service to automatic
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\AppXSvc" -Name "Start" -Type DWord -Value 2
+Get-Service -Name $StartService | Start-Service -Verbose RunAs -PassThru
 
-write-Host "Restarting Windows Explorer..."
+Clear-Host
+write-Host "Trying to remove all Metro applications..."
+Get-AppxPackage -AllUsers | Remove-AppxPackage 
+Get-AppxPackage | Remove-AppxPackage
+Get-AppxProvisionedPackage -Online | Remove-AppxProvisionedPackage -Online
+
+write-Host "Permanently remove Metro applications, you wont be able to recover any of those applications!"
+$ProgramFile = "$env:ProgramFiles\WindowsApps"
+$Folders = Get-ChildItem -Path $ProgramFile | ForEach-Object{
+    takeown /f $_.FullName 
+    Remove-Item -Path $_.FullName -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
+}
+
+write-Host "Script will now Disable 'AppXSvc' service! "
+#HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AppXSvc
+#2 - Automatic
+#4 - Disabled
+#Set Service to Disabled
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\AppXSvc" -Name "Start" -Type DWord -Value 4
+Stop-Service -Name AppXSvc -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
+    
+write-Host "All 'Metro' applications should be gone now!"
+
+write-Host "Restarting Windows Explorer to apply changes..."
 Stop-Process -Name "explorer" -Force -PassThru
 Start-Sleep -Milliseconds 500
 
@@ -488,7 +561,7 @@ Start-Process -FilePath $Path -PassThru -Wait
 #>
 
 Get-Service -Name "AppXSvc" -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
-Stop-Service -InputObject "AppXSvc" -Force -PassThru -ErrorAction SilentlyContinue
+Stop-Service -Name "AppXSvc" -Force -PassThru -ErrorAction SilentlyContinue
 Disable-ScheduledTask -TaskName "\Microsoft\Windows\AppxDeploymentClient\Pre-staged app cleanup" | Out-Null -ErrorAction SilentlyContinue
 
 Clear-Host
