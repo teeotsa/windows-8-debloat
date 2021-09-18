@@ -13,6 +13,18 @@ After you have typed it in, press *Enter* and check your version
 
 (Screenshot taken from **Windows 8 Pro RTM 2012**)
 
+# How to update to PowerShell 5.1 ?
+
+Its only for Windows 8.1 users! You have to get update files from [here](https://aka.ms/wmf5download). Choose files for **your** computer
+
+![Updates](https://user-images.githubusercontent.com/78772453/133895386-34bf4898-9ffc-470b-b1dc-faa8d01b5917.PNG)
+
+After that, just run that **.msu** file you downloaded and just wait. After reboot, you should have **PowerShell 5.1** running on your **Windows 8.1** system. You can run "**$PSVersionTable**" to see your version of **PowerShell**
+
+![PowerShellVersion](https://user-images.githubusercontent.com/78772453/133895546-51b61799-d40b-49f5-a03f-61e6624b1865.PNG)
+
+
+
 
 # How to make changes to my script?
 
@@ -31,3 +43,5 @@ After **Powershell ISE** is running, explore the code and tweak it like you want
 [Aero-Lite Theme](https://github.com/teeotsa/aero-lite)
 
 [Remove Edge from any Windows 10 System](https://github.com/teeotsa/deinstall-edge)
+
+[Discord Server](https://www.discord.gg/eA23Nc8TAT)
