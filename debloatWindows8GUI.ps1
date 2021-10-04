@@ -52,23 +52,15 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 
-#Check if you can run this script! (Windows Version Check)
-$WinMajor = [System.Environment]::OSVersion.Version.Major
-$WinMinor = [System.Environment]::OSVersion.Version.Minor
-$BlackListedNTVersions = @(
-    "61" #Windows 7
-    "60" #Windows Vista
-    "50" #Windows XP
-    "10" #Windows 10
-)
-foreach($NT in $BlackListedNTVersions){
-    $Ver = "$WinMajor$WinMinor"
-    if ($Ver -match $NT){
-        Clear-Host
-        write-Host "This script is not made for your system! Please use Windows 8/8.1"
-        pause
-        exit
-    }
+# Check NT Version.
+# Update 1 : Made this part of the script better and smaller :D
+
+$WinMajor = [System.Environment]::OSVersion.Version.ToString()
+if (!($WinMajor -match "6.3.*.*")){
+    Clear-Host
+    write-Host "This script is not made for your system! Please use Windows 8/8.1"
+    pause
+    exit
 }
 
 #=======================
@@ -114,21 +106,22 @@ function restartExplorer
     }
 }
 
-$Lines = @(
-    "This script is made only for Windows 8/8.1"
-    "Script was made by Teeotsa"
-    "Github : https://github.com/teeotsa"
-    "   "
-    "Info : This version of Windows 8 Debloater GUI"
-    "is remade and optimized! Please dont use"
-    "older version of GUI debloater scripts"
-    "   "
-    "If you have any issues or questions, please"
-    "contact me via discord (Teeotsa#6167)"
-)
-foreach($Line in $Lines){
-    Write-Output $Line
-}
+
+# Prompt Lines
+# Update 1 : Made it better, no foreach loop anymore :'D
+$Lines = @"
+This script is made only for Windows 8/8.1 (Tablets / Hybrids / Laptops)
+Script was made by Teeotsa
+Github : https://github.com/teeotsa
+    
+Info : This version of Windows 8 Debloater
+made for Tablets, Laptops or any kindof 
+hybrids you use! 
+   
+If you have any issues or questions, please
+contact me via discord (Teeotsa#6167).
+"@;
+Write-Host $Lines
 
 $Form                            = New-Object system.Windows.Forms.Form
 $Form.ClientSize                 = New-Object System.Drawing.Point(1050,700)
