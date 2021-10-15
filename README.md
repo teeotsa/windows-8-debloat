@@ -3,7 +3,7 @@
 This script can tweak your **Windows 8/8.1** sytems! It is really powerful script and can achieve alot! And dont worry, script will make **Restore Point** so you can revert back from any tweaks this script made!
 
 
-Your Windows should be running atleast **Powershell 4.0**. How can you check your **Powershell** Version? First of all, open **Powershell** and then type
+Your Windows should be running atleast **Powershell 3.0** (Windows 8 RTM has it pre-installed). How can you check your **Powershell** Version? First of all, open **Powershell** and then type
 ```
 $PSVersionTable
 ```
