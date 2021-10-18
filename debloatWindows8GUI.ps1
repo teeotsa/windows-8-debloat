@@ -57,8 +57,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 
 $WinMajor = [System.Environment]::OSVersion.Version.ToString()
 if (!($WinMajor -match "6.3.*.*")){
-    Clear-Host
-    write-Host "This script is not made for your system! Please use Windows 8/8.1"
+    Clear-Host ; write-Host "This script is not made for your system! Please use Windows 8/8.1" -ForegroundColor Yellow -BackgroundColor Black
     pause
     exit
 }
@@ -68,12 +67,13 @@ if (!($WinMajor -match "6.3.*.*")){
 #=======================
 
 $Desktop = "$env:SystemDrive\Users\$env:UserName\Desktop";
-if (!(Test-Path "$Desktop\debloat_log.txt")){
-    New-Item -Path "$Desktop\debloat_log.txt" -Force | Out-Null
-}
+
 
 function logAdd{
     if ($args -eq $null){ return };
+        if (!(Test-Path "$Desktop\debloat_log.txt")){
+            New-Item -Path "$Desktop\debloat_log.txt" -Force | Out-Null
+        }
     $SystemTime = Get-Date -DisplayHint Time;
     Add-Content -Path "$Desktop\debloat_log.txt" "[$SystemTime] $args"
 }
@@ -320,10 +320,10 @@ $ExtremeTweaks.Add_Click({
     foreach($Service in $Services){
         Get-Service -Name $Service | Set-Service -StartupType Disabled
         $Running = Get-Service -Name $Service | Where-Object{$_.Status -eq "Running"}
-        logAdd "'$Service' was disabled!"
+        logAdd "Service : '$Service' was disabled!"
         if ($Running){
             Write-Warning "'$Service' was running, trying to stop it now!"
-            logAdd "'$Service' has been stopped"
+            logAdd "Service : '$Service' has been stopped"
             Stop-Service -Name $Service -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
         }
     }
@@ -341,7 +341,7 @@ $ExtremeTweaks.Add_Click({
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUI" -Name "DisableCharmsHint" -Type DWord -Value 1
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUI" -Name "DisableTLCorner" -Type DWord -Value 1
     write-Host "'Hot Corners' and 'Charms Bar' has been disabled (Atleast they should be disabled now)";
-    logAdd "'Hot Corners' has been disabled"
+    logAdd "Registry Tweak : 'Hot Corners' has been disabled"
 
     # Disable File Histroy
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory")){
@@ -349,7 +349,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -Name "Disabled" -Type DWord -Value 1
     write-Host "'File History' should be disabled now"
-    logAdd "'File History' should be disabled now"
+    logAdd "Registry Tweak : 'File History' should be disabled now"
 
     # Disable Consumer Features, kindof telemetry. Safe to disable
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")){
@@ -357,7 +357,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
     write-Host "'Consumer Features' should be disabled now"
-    logAdd "'Consumer Features' should be disabled now"
+    logAdd "Registry Tweak : 'Consumer Features' should be disabled now"
 
     # No Use Open With dialog
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer")){
@@ -365,7 +365,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoUseStoreOpenWith" -Type DWord -Value 1
     write-Host "'Open With' prompts should be disabled now"
-    logAdd "'Open With' prompts should be disabled now"
+    logAdd "Registry Tweak : 'Open With' prompts should be disabled now"
 
     # No New App Alert, might not work with Windows 8.0
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer")){
@@ -373,7 +373,7 @@ $ExtremeTweaks.Add_Click({
     } 
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "NoNewAppAlert" -Type DWord -Value 1
     write-Host "'No New Application' prompts should be disabled now"
-    logAdd "'No New Application' prompts should be disabled now"
+    logAdd "Registry Tweak : 'No New Application' prompts should be disabled now"
 
     # No LockScreen (Disable Lock Screen)
     # You should be able to re-enable it via Immersive Control Panel. If not, you
@@ -383,7 +383,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1
     write-Host "Lock Screen has been disabled"
-    logAdd "Lock Screen has been disabled"
+    logAdd "Registry Tweak : Lock Screen has been disabled"
 
     # No Application Backups (I guess its application data backups, but who knows?) Anyways, safe to disable if
     # you wish to use Metro applications
@@ -392,7 +392,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync" -Name "EnableBackupForWin8Apps" -Type DWord -Value 0
     write-Host "Application backups has been disabled"
-    logAdd "Metro Application backups has been disabled"
+    logAdd "Registry Tweak : Metro Application backups has been disabled"
 
     # Disable Infrared Stuff (Who does even use Infrared on their computers these days? :'D)
     if (!(Test-Path "HKCU:\Control Panel\Infrared\Global")){
@@ -404,7 +404,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Control Panel\Infrared\File Transfer" -Name "AllowSend" -Type DWord -Value 0
     write-Host "Infrared should be disabled now"
-    logAdd "Infrared should be disabled now"
+    logAdd "Registry Tweak : Infrared should be disabled now"
 
     # Disable Smart Screen (It should be Internet Explorer's smartscreen only) This needs some testing
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")){
@@ -412,7 +412,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableSmartScreen" -Type DWord -Value 0
     write-Host "'Smartscreen' is disabled now"
-    logAdd "'Smartscreen' is disabled now"
+    logAdd "Registry Tweak : 'Smartscreen' is disabled now"
 
     # No Activity History (System wont save/store search and run dialog texts after this 'tweak'. Atleast shouldn't)
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")){
@@ -422,7 +422,7 @@ $ExtremeTweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
     write-Host "Activity History is disabled"
-    logAdd "Activity History is disabled"
+    logAdd "Registry Tweak : Activity History is disabled"
 
     # Disable Anti Spyware (Disable Windows Defender, might not work if you update your system because updates include new
     # version of Windows Defender. I haven't tested new one out yet and i won't. You can disable newer versions of Windows
@@ -434,7 +434,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
     write-Host "Windows Defender should be disabled now (via Registry)"
-    logAdd "Windows Defender should be disabled now (via Registry)"
+    logAdd "Registry Tweak : Windows Defender should be disabled now (via Registry)"
 
     # Disable -shortcut text
     # If you tried to make any shortcuts in the past, you saw that "-shortcut" text. Well, this tweak will disable it
@@ -443,7 +443,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](00,00,00,00))
     write-Host "-shortcut text on shortcuts has been disabled"
-    logAdd "-shortcut text on shortcuts has been disabled"
+    logAdd "Registry Tweak : -shortcut text on shortcuts has been disabled"
 
     # Remove Shortcut Arrows on any shortcuts on your system
     if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons")){
@@ -451,7 +451,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" -Name "29" -Type String -Value ""
     write-Host "Shortcut arrows are disabled"
-    logAdd "Shortcut arrows are disabled"
+    logAdd "Registry Tweak : Shortcut arrows are disabled"
 
     # Launch Apps Faster
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize")){
@@ -461,7 +461,7 @@ $ExtremeTweaks.Add_Click({
     #restarts Windows Explorer, function above
     restartExplorer
     write-Host "You should be able to launch applications faster now"
-    logAdd "You should be able to launch applications faster now"
+    logAdd "Registry Tweak : You should be able to launch applications faster now"
 
     # Disable Windows Error Reporting (Telemetry)
     if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting")){
@@ -469,7 +469,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
     write-Host "Windows Error Reporting has been disbaled"
-    logAdd "Windows Error Reporting has been disbaled"
+    logAdd "Registry Tweak : Windows Error Reporting has been disbaled"
 
     # No store apps on taskbar, this will hide all running metro apps from your taskbar
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
@@ -477,7 +477,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "StoreAppsOnTaskbar" -Type DWord -Value 0
     write-Host "Store apps on taskbar should be disabled now"
-    logAdd "Store apps on taskbar should be disabled now"
+    logAdd "Registry Tweak : Store apps on taskbar should be disabled now"
 
     # Taskbar Small Icons. System will use small taskbar icons/small taskbar
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
@@ -486,30 +486,30 @@ $ExtremeTweaks.Add_Click({
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type DWord -Value 1
     restartExplorer
     write-Host "You should now have Small Taskbar Icons"
-    logAdd "Small Taskbar Icons are enabled now"
+    logAdd "Registry Tweak : Small Taskbar Icons are enabled now"
 
 
     # Windows Explorer Status Bar - Disabled (Hide Windows Explorers Status Bar, its that white annoying bar with almost nothing on it)
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowStatusBar" -Type DWord -Value 0
     write-Host "Status Bar from Explorer is gone now"
-    logAdd "Status Bar from Explorer is gone now"
+    logAdd "Registry Tweak : Status Bar from Explorer is gone now"
 
     # Hide Favourites from Windows Explorer (Useless category)
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneShowFavorites" -Type DWord -Value 0
     write-Host "Favourites is gone from Explorer now"
-    logAdd "Favourites is gone from Explorer now"
+    logAdd "Registry Tweak : Favourites is gone from Explorer now"
 
     # This will show you File Extensions, useful
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
     write-Host "You will be able to see file extensions now"
-    logAdd "You will be able to see file extensions now"
+    logAdd "Registry Tweak : You will be able to see file extensions now"
 
     # Disable Aero Shake. If you shake your windows on top of other windows, they will be minimized and its kinda annoying
     # This tweak will disable this feature. If you wish to use it, you can remove this registry key or enable this feature
     # from control panel
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisallowShaking" -Type DWord -Value 1
     Write-Host "Aero Share is disabled"
-    logAdd "Aero Share is disabled"
+    logAdd "Registry Tweak : Aero Share is disabled"
 
     # Disable AutoPlay. If you plug USB Storage Device in your computer, you wont be promoted to open it right away
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers")){
@@ -517,7 +517,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1
     write-Host "AutoPlay is disabled"
-    logAdd "AutoPlay is disabled"
+    logAdd "Registry Tweak : AutoPlay is disabled"
 
     # Disable AeroPeek. You should disable this feature on low-end computers. Previews of windows wont be moving/running if you want to peek
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\DWM")){
@@ -525,7 +525,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0
     write-Host "AeroPeek is disabled now"
-    logAdd "AeroPeek is disabled now"
+    logAdd "Registry Tweak : AeroPeek is disabled now"
 
     # Disable Auto Screen Rotation. Random registry tweak i found. Could be useful on tablets/hybrids?
     if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AutoRotation")){
@@ -533,7 +533,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AutoRotation" -Name "Enable" -Type DWord -Value 0
     Write-Host "Auto Screen Rotation is disabled now"
-    logAdd "Auto Screen Rotation is disabled now"
+    logAdd "Registry Tweak : Auto Screen Rotation is disabled now"
 
     # Disable Settings Sync. I think its like syncing your wallpapers and system settings with Microsoft Accounts. If so, you should disable it
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\AppSync")){
@@ -541,7 +541,7 @@ $ExtremeTweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\AppSync" -Name "Enabled" -Type DWord -Value 0
     write-Host "Settings Sync has been disabled"
-    logAdd "Settings Sync has been disabled"
+    logAdd "Registry Tweak : Settings Sync has been disabled"
 
     #===============================
     #  Scheduled Tasks
@@ -652,14 +652,16 @@ $ExtremeTweaks.Add_Click({
     $WindowsUpdateService = Get-Service -Name "wuauserv"
     if ($WindowsUpdateService.StartType -eq "Disabled"){
         Write-Warning "Windows Update service wasn't running. Script will enable and start it!"
+        logAdd "Warning : Windows Update service wasn't running. Script will enable and start it!"
         $WindowsUpdateService | Set-Service -StartupType Automatic 
         $WindowsUpdateService | Start-Service 
     }
     foreach ($OptionalFeatures in $OptionalFeatures){
         $Feature = Get-WindowsOptionalFeature -Online -FeatureName $OptionalFeatures | Out-Null
-        if ($Feature.State -eq "Disabled"){
-            Enable-WindowsOptionalFeature -Online -FeatureName $OptionalFeatures -NoRestart | Out-Null
-        }
+            if ($Feature.State -eq "Disabled"){
+                Enable-WindowsOptionalFeature -Online -FeatureName $OptionalFeatures -NoRestart | Out-Null
+                logAdd "Optional Feature : Enabled $OptionalFeatures"
+            }
     }
 
 })
@@ -671,51 +673,51 @@ $MinimalTweaks.Add_Click({
     #=================================
 
     $Services = @(
-    "LanmanWorkstation"
-    "workfolderssvc"
-    "WinHttpAutoProxySvc"
-    "WSService"
-    "WMPNetworkSvc"
-    "lfsvc"
-    "MpsSvc"
-    "WerSvc"
-    "TabletInputService"
-    "lmhosts"
-    "SysMain"
-    "svsvc"
-    "sppsvc"
-    "SCPolicySvc"
-    "ScDeviceEnum"
-    "SCardSvr"
-    "LanmanServer"
-    "wscsvc"
-    "seclogon"
-    "RemoteRegistry"
-    "Spooler"
-    "QWAVE"
-    "wercplsupport"
-    "wlidsvc"
-    "iphlpsvc"
-    "IKEEXT"
-    "HomeGroupProvider"
-    "HomeGroupListener"
-    "Fax"
-    "fhsvc"
-    "TrkWks"
-    "WdiSystemHost"
-    "WdiServiceHost"
-    "DPS"
-    "VaultSvc"
+        "LanmanWorkstation"
+        "workfolderssvc"
+        "WinHttpAutoProxySvc"
+        "WSService"
+        "WMPNetworkSvc"
+        "lfsvc"
+        "MpsSvc"
+        "WerSvc"
+        "TabletInputService"
+        "lmhosts"
+        "SysMain"
+        "svsvc"
+        "sppsvc"
+        "SCPolicySvc"
+        "ScDeviceEnum"
+        "SCardSvr"
+        "LanmanServer"
+        "wscsvc"
+        "seclogon"
+        "RemoteRegistry"
+        "Spooler"
+        "QWAVE"
+        "wercplsupport"
+        "wlidsvc"
+        "iphlpsvc"
+        "IKEEXT"
+        "HomeGroupProvider"
+        "HomeGroupListener"
+        "Fax"
+        "fhsvc"
+        "TrkWks"
+        "WdiSystemHost"
+        "WdiServiceHost"
+        "DPS"
+        "VaultSvc"
     )
 
     foreach($Services in $Services){
         Get-Service -Name $Services | Set-Service -StartupType Disabled
         $Running = Get-Service -Name $Services | Where-Object{$_.Status -eq "Running"}
-        logAdd "'$Services' has been disabled"
+        logAdd "Service : '$Services' has been disabled"
         if ($Running){
             Write-Warning "'$Services' was running, trying to stop it now!"
             Stop-Service -Name $Services -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
-            logAdd "'$Services' has been stopped"
+            logAdd "Service : '$Services' has been stopped"
         }
     }
 
@@ -830,7 +832,7 @@ $MinimalTweaks.Add_Click({
         Write-Warning "Windows Update service wasn't running. Script will enable and start it!"
         $WindowsUpdateService | Set-Service -StartupType Automatic 
         $WindowsUpdateService | Start-Service 
-        logAdd "'Windows Update' services was disabled! Script enabled them for you"
+        logAdd "Warning : 'Windows Update' services was disabled! Script enabled them for you"
     }
     foreach ($OptionalFeatures in $OptionalFeatures){
         $Feature = Get-WindowsOptionalFeature -Online -FeatureName $OptionalFeatures | Out-Null
@@ -874,10 +876,16 @@ $RemoveBloatware.Add_Click({
     #>
     #foreach($Bloat in $Bloatware){
 
+        $AppxService = Get-Service -Name AppXSvc 
+        if ($AppxService.StartType -eq "Disabled"){
+            logAdd "Bloatware : AppxService is not running, script cannot remove any bloatware packages"
+            return;
+        }
+
         Get-AppxPackage | Remove-AppxPackage 
         Get-AppxPackage -AllUsers | Remove-AppxPackage 
         Get-AppxProvisionedPackage -Online | Remove-AppxProvisionedPackage -Online
-        logAdd "Removing all bloatware..."
+        logAdd "Bloatware : Removing all bloatware..."
         #write-Host "Trying to remove '$Bloat'"
     
     #}
@@ -887,6 +895,7 @@ $RemoveBloatware.Add_Click({
 $TweakVisualFX.Add_Click({
 
     Clear-Host
+    logAdd "Visual FX : Tweaking Visual Effects..."
     if (!(Test-Path "HKCU:\Control Panel\Desktop")){
         New-Item -Path "HKCU:\Control Panel\Desktop" -Force | Out-Null
     }
@@ -945,6 +954,7 @@ $TweakVisualFX.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\CursorShadow" -Name "DefaultApplied" -Type DWord -Value 0
     restartExplorer
+    logAdd "Visual FX : Done with tweaking"
 
 })
 
