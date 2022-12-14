@@ -47,7 +47,7 @@ $Job = Start-Job -ScriptBlock {
     $Service = Get-Service | ?{$_.DisplayName -match 'Windows Error Reporting'}
     $Service.Stop() | Out-Null
     Set-Service -Name $Service.Name -StartupType Disabled | Out-Null
-    Get-ChildItem -Path "$env:ProgramData\Microsoft\Windows\WER" -Force -Recurse | %{Remove-Item -Path $_.FullName -Force -Recurse | Out-Null}
+    Get-ChildItem -Path "$env:ProgramData\Microsoft\Windows\WER" -Force -Recurse | %{ Remove-Item -Path $_.FullName -Force -Recurse | Out-Null }
 }
 Wait-Job -Id $Job.Id | Out-Null
 Write-Host "Windows Error Reporting is disabled!`n"
@@ -57,6 +57,7 @@ Write-Host 'Disable Services'
 $Job = Start-Job -ScriptBlock {
     $RegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\'
     $List = @(
+        # Default Windows Services
         'workfolderssvc','W32Time','WSService','WSearch','WinRM','WMPNetworkSvc','lfsvc','MpsSvc','WbioSrvc'
         'VSS','TabletInputService','Themes','SysMain','svsvc','sppsvc','SCardSvr','ScDeviceEnum','SCPolicySvc'
         'LanmanServer','SensrSvc','wscsvc','RemoteRegistry','QWAVE','PcaSvc','wercplsupport','PrintNotify'
@@ -65,6 +66,8 @@ $Job = Start-Job -ScriptBlock {
         'HomeGroupProvider','HomeGroupListener','fhsvc','Fax','WPCSvc','TrkWks','DiagTrack','DsmSvc','VaultSvc'
         'bthserv','BthHFSrv','AppXSvc','AppReadiness','stisvc','WdNisSvc','WcsPlugInService','TapiSrv'
         'WiaRpc','wbengine','Browser','LanmanWorkstation','TrkWks'
+
+        # Drivers & System Services
     )
     Foreach ($ServiceName in $List)
     {
@@ -243,14 +246,11 @@ Write-Host "Windows Defender is disabled!`n"
 # Disable Logs
 Write-Host 'Disable Logging'
 $Job = Start-Job -ScriptBlock {
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Audio' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\AutoLogger-Diagtrack-Listener' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DiagLog' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\FamilySafetyAOT' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\SQMLogger' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\TPM' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DefenderApiLogger' -Name 'Start' -Value 0 -Force | Out-Null
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DefenderAuditLogger' -Name 'Start' -Value 0 -Force | Out-Null
+    Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\WMI\Autologger' | %{
+        $Name = $_.Name.Replace('HKEY_LOCAL_MACHINE','HKLM:')
+        Set-ItemProperty -Path $Name -Name 'Start' -Value 4 -Force -ErrorAction SilentlyContinue | Out-Null
+        Set-ItemProperty -Path $Name -Name 'Enabled' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    }
 }
 Wait-Job -Id $Job.Id | Out-Null
 Write-Host "Logging is disabled!`n"
