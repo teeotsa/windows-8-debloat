@@ -59,7 +59,7 @@ $Job = Start-Job -ScriptBlock {
     $List = @(
         # Default Windows Services
         'workfolderssvc','W32Time','WSService','WSearch','WinRM','WMPNetworkSvc','lfsvc','MpsSvc','WbioSrvc'
-        'VSS','TabletInputService','Themes','SysMain','svsvc','sppsvc','SCardSvr','ScDeviceEnum','SCPolicySvc'
+        'VSS','TabletInputService','Themes','SysMain','svsvc','SCardSvr','ScDeviceEnum','SCPolicySvc'
         'LanmanServer','SensrSvc','wscsvc','RemoteRegistry','QWAVE','PcaSvc','wercplsupport','PrintNotify'
         'Spooler','pla','defragsvc','CscService','NcaSvc','NcbService','smphost','swprv','MsKeyboardFilter'
         'edgeupdatem','edgeupdate','MicrosoftEdgeElevationService','wlidsvc','lltdsvc','iphlpsvc','IEEtwCollectorService'
