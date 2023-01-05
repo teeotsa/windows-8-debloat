@@ -22,21 +22,22 @@ Write-Host "Done with packages`n"
 # Disable Telemetry
 Write-Host 'Disable Telemetry'
 $Job = Start-Job -ScriptBlock {
-    @("HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent", "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection", "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection", "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection") | ForEach-Object {
+    @("HKLM:\SOFTWARE\Policies\Microsoft\SQMClient", "HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows", "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent", "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection", "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection", "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection") | ForEach-Object {
         If (!(Test-Path $_))
         {
             New-Item -Path $_ -Force | Out-Null
         }
     }
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'MaxTelemetryAllowed' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'MaxTelemetryAllowed' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'DoNotShowFeedbackNotifications' -Value 0 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent' -Name 'DisableWindowsConsumerFeatures' -Value 1 -Force 
-    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent' -Name 'DisableTailoredExperiencesWithDiagnosticData' -Value 1 -Force
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'MaxTelemetryAllowed' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'MaxTelemetryAllowed' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'DoNotShowFeedbackNotifications' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent' -Name 'DisableWindowsConsumerFeatures' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent' -Name 'DisableTailoredExperiencesWithDiagnosticData' -Value 1 -Force-ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows' -Name 'CEIPEnable' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
 }
 Wait-Job -Id $Job.Id | Out-Null
 Write-Host "Telemetry should be disbaled!`n"
@@ -46,6 +47,9 @@ Write-Host 'Disable Windows Error Reporting'
 $Job = Start-Job -ScriptBlock {
     $Service = Get-Service | ?{$_.DisplayName -match 'Windows Error Reporting'}
     $Service.Stop() | Out-Null
+    Remove-Item -Path 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting' -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
+    New-Item -Path 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting' -Force | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting' -Name 'Disabled' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
     Set-Service -Name $Service.Name -StartupType Disabled | Out-Null
     Get-ChildItem -Path "$env:ProgramData\Microsoft\Windows\WER" -Force -Recurse | %{ Remove-Item -Path $_.FullName -Force -Recurse | Out-Null }
 }
@@ -254,6 +258,100 @@ $Job = Start-Job -ScriptBlock {
 }
 Wait-Job -Id $Job.Id | Out-Null
 Write-Host "Logging is disabled!`n"
+
+# Apply System Tweaks
+Write-Host 'Tweaking System...'
+$Job = Start-Job -ScriptBlock {
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Session Manager\Power' -Name 'HiberbootEnabled' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' -Name 'HiberbootEnabled' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Session Manager\Memory Management' -Name 'LargeSystemCache' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\PriorityControl' -Name 'Win32PrioritySeparation' -Value 0x26 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters' -Name 'EnablePrefetcher' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters' -Name 'EnableSuperfetch' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Peernet
+    If (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Peernet')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Peernet' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Peernet' -Name 'Disabled' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable NetCrawling
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'NoNetCrawling' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Hibernation
+    Start-Process -FilePath 'cmd' -ArgumentList '/c powercfg -h off' -Verb 'Runas' -WindowStyle Hidden -Wait
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' -Name 'HibernateEnabled' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Clear Document Info on Exit
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer' -Name 'ClearRecentDocsOnExit' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Settings Sync
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync' -Name 'EnableBackupForWin8Apps' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync' -Name 'DisableSettingSync' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable SmartScreen
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' -Name 'EnableSmartScreen' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' -Name 'SmartScreenEnabled' -Value 'Off' -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Input Data Collection
+    New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization' -Force | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization' -Name 'RestrictImplicitInkCollection' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization' -Name 'RestrictImplicitTextCollection' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable NTFS Encryption
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Policies' -Name 'NtfsDisableEncryption' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable System Restore
+    If (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore' -Name 'DisableConfig' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore' -Name 'DisableSR' -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # File Protection
+    If (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Windows File Protection')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Windows File Protection' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Windows File Protection' -Name SfcScan -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    
+    # Disable Windows Digital Locker
+    If (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Digital Locker')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Digital Locker' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Digital Locker' -Name DoNotRunDigitalLocker -Value 1 -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable DEP for Windows Explorer
+    If (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer' -Name NoDataExecutionPrevention -Value 1 -ErrorAction SilentlyContinue | Out-Null
+    
+    # Disable File History
+    If (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory' -Name Disabled -Value 1 -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Location Stuff
+    If (!(Test-Path 'HKLM:\Software\Policies\Microsoft\Windows\LocationAndSensors')) { New-Item -Path 'HKLM:\Software\Policies\Microsoft\Windows\LocationAndSensors' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\LocationAndSensors' -Name DisableLocationScripting -Value 1 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\LocationAndSensors' -Name DisableLocation -Value 1 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\LocationAndSensors' -Name DisableSensors -Value 1 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\LocationAndSensors' -Name DisableWindowsLocationProvider -Value 1 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Sensors\LocationProvider' -Name CSEnable -Value 0 -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Remote Desktop
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance' -Name fAllowFullControl -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance' -Name fAllowToGetHelp -Value 0 -ErrorAction SilentlyContinue | Out-Null
+
+    # Configure Windows Update
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update' -Name AUOptions -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update' -Name CachedAUOptions -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update' -Name IncludeRecommendedUpdates -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    
+    # Disable EdgeUI Corners
+    If (!(Test-Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUi')) { New-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUi' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUi' -Name DisableTLCorner -Value 1 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell\EdgeUi' -Name DisableTRCorner -Value 1 -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable Tracking
+    If (!(Test-Path 'HKLM:\SOFTWARE\Microsoft\Tracing')) { New-Item -Path 'HKLM:\SOFTWARE\Microsoft\Tracing' -Force | Out-Null }
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Tracing' -Name EnableConsoleTracing -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Tracing' -Name EnableFileTracing -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Tracing' -Name EnableAutoFileTracing -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name Start_TrackDocs -Value 0 -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name Start_TrackProgs -Value 0 -ErrorAction SilentlyContinue | Out-Null
+}
+Wait-Job -Id $Job.Id | Out-Null
+Write-Host "System has been tweaked!`n"
 
 Write-Warning 'You should restart your system now!'
 
