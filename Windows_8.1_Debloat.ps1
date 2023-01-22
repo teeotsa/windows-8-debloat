@@ -40,7 +40,7 @@ $Job = Start-Job -ScriptBlock {
     Set-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows' -Name 'CEIPEnable' -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
 }
 Wait-Job -Id $Job.Id | Out-Null
-Write-Host "Telemetry should be disbaled!`n"
+Write-Host "Telemetry should be disabled!`n"
 
 # Disable Windows Error Reporting
 Write-Host 'Disable Windows Error Reporting'
@@ -85,8 +85,8 @@ $Job = Start-Job -ScriptBlock {
 # Wait-Job -Id $Job.Id | Out-Null
 Write-Host "Useless Services are disabled now! System Reboot is required!`n"
 
-# Disbale Scheduled Tasks
-Write-Host 'Disbale Scheduled Tasks'
+# Disable Scheduled Tasks
+Write-Host 'Disable Scheduled Tasks'
 $Job = Start-Job -ScriptBlock {
     $Paths = @(
         '\Microsoft\Windows\.NET Framework'
