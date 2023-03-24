@@ -11,7 +11,17 @@
 * Windows Update
 * Microsoft Account
 
-# Before the script
+# How to run
+
+* Download `Windows_8.1_Debloat.ps1` from this Github repository.
+* Open a PowerShell terminal with administrative privileges.
+* Before running the script, you may need to allow unsigned scripts. This can be done using the command `Set-ExecutionPolicy -ExecutionPolicy Unrestricted` . Be aware that this policy is a security risk.
+* You can then run the script by locating it and typing `Windows_8.1_Debloat.ps1`. It takes a few minutes to run.
+* After running the script, you can recover your execution policy by typing `Set-ExecutionPolicy -ExecutionPolicy Default` .
+* Finally, you can restart your computer by running `shutdown /r /t 0` .
+
+
+# Performance - Before the script
 
 ![vmware_egiE6OlOL5](https://user-images.githubusercontent.com/78772453/204083611-7f2442fc-93a0-460d-93e9-1fb1c1b6501f.png)
 
@@ -19,7 +29,7 @@
 
 ![vmware_aX7sqlivLL](https://user-images.githubusercontent.com/78772453/204083615-381d30ba-ef66-44b5-9cf7-253dd12826d1.png)
 
-# After the script
+# Performance - After the script
 
 ![vmware_fg5AfpkuUI](https://user-images.githubusercontent.com/78772453/204083125-67233f18-1720-442e-99e3-ab025782c085.png)
 
